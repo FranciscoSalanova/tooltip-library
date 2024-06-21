@@ -1,7 +1,7 @@
-import addGlobalEventListener from "./util/addGlobalEventListener.js"
+import addGlobalEventListener from './util/addGlobalEventListener.js'
 
 const DEFAULT_SPACING = 5
-const POSITION_ORDER = ["top", "bottom", "left", "right"]
+const POSITION_ORDER = ['top', 'bottom', 'left', 'right']
 const POSITION_TO_FUNCTION_MAP = {
   top: positionTooltipTop,
   bottom: positionTooltipBottom,
@@ -9,17 +9,17 @@ const POSITION_TO_FUNCTION_MAP = {
   right: positionTooltipRight,
 }
 
-const tooltipContainer = document.createElement("div")
-tooltipContainer.classList.add("tooltip-container")
+const tooltipContainer = document.createElement('div')
+tooltipContainer.classList.add('tooltip-container')
 document.body.append(tooltipContainer)
 
-addGlobalEventListener("mouseover", "[data-tooltip]", (e) => {
+addGlobalEventListener('mouseover', '[data-tooltip]', (e) => {
   const tooltip = createToolTipElement(e.target.dataset.tooltip)
   tooltipContainer.append(tooltip)
   positionTooltip(tooltip, e.target)
 
   e.target.addEventListener(
-    "mouseleave",
+    'mouseleave',
     () => {
       tooltip.remove()
     },
@@ -28,8 +28,8 @@ addGlobalEventListener("mouseover", "[data-tooltip]", (e) => {
 })
 
 function createToolTipElement(text) {
-  const tooltip = document.createElement("div")
-  tooltip.classList.add("tooltip")
+  const tooltip = document.createElement('div')
+  tooltip.classList.add('tooltip')
   tooltip.textContent = text
 
   return tooltip
@@ -38,12 +38,15 @@ function createToolTipElement(text) {
 function positionTooltip(tooltip, element) {
   const elementRect = element.getBoundingClientRect()
   const spacing = parseInt(element.dataset.spacing) || DEFAULT_SPACING
-  const preferredPositions = element.dataset.positions.split("|")
-  const positions = preferredPositions.concat(POSITION_ORDER)
+  let positions = POSITION_ORDER
+
+  if (element.dataset.positions) {
+    const preferredPositions = element.dataset.positions.split('|')
+    positions = preferredPositions.concat(POSITION_ORDER)
+  }
 
   for (let i = 0; i < positions.length; i++) {
     const func = POSITION_TO_FUNCTION_MAP[positions[i]]
-
     if (func && func(tooltip, elementRect, spacing)) return
   }
 }
@@ -65,7 +68,7 @@ function positionTooltipTop(tooltip, elementRect, spacing) {
 
   if (bounds.right) {
     tooltip.style.right = `${spacing}px`
-    tooltip.style.left = "initial"
+    tooltip.style.left = 'initial'
   }
 
   if (bounds.left) {
@@ -92,7 +95,7 @@ function positionTooltipBottom(tooltip, elementRect, spacing) {
 
   if (bounds.right) {
     tooltip.style.right = `${spacing}px`
-    tooltip.style.left = "initial"
+    tooltip.style.left = 'initial'
   }
 
   if (bounds.left) {
@@ -103,45 +106,57 @@ function positionTooltipBottom(tooltip, elementRect, spacing) {
 }
 
 function positionTooltipLeft(tooltip, elementRect, spacing) {
-  // const tooltipRect = tooltip.getBoundingClientRect()
-  // tooltip.style.top = `${elementRect.top - tooltipRect.height - spacing}px`
-  // tooltip.style.left = `${
-  //   elementRect.left + elementRect.width / 2 - tooltipRect.width / 2
-  // }px`
-  // const bounds = isOutOfBounds(tooltip, spacing)
-  // if (bounds.top) {
-  //   resetTooltipPosition(tooltip)
-  //   return false
-  // }
-  // if (bounds.right) {
-  //   tooltip.style.right = `${spacing}px`
-  //   tooltip.style.left = "initial"
-  // }
-  // if (bounds.left) {
-  //   tooltip.style.left = `${spacing}px`
-  // }
-  // return true
+  const tooltipRect = tooltip.getBoundingClientRect()
+
+  tooltip.style.top = `${
+    elementRect.top + elementRect.height / 2 - tooltipRect.height / 2
+  }px`
+  tooltip.style.left = `${elementRect.left - tooltipRect.width - spacing}px`
+
+  const bounds = isOutOfBounds(tooltip, spacing)
+
+  if (bounds.left) {
+    resetTooltipPosition(tooltip)
+    return false
+  }
+
+  if (bounds.bottom) {
+    tooltip.style.bottom = `${spacing}px`
+    tooltip.style.top = 'initial'
+  }
+
+  if (bounds.top) {
+    tooltip.style.top = `${spacing}px`
+  }
+
+  return true
 }
 
 function positionTooltipRight(tooltip, elementRect, spacing) {
-  // const tooltipRect = tooltip.getBoundingClientRect()
-  // tooltip.style.top = `${elementRect.bottom + spacing}px`
-  // tooltip.style.left = `${
-  //   elementRect.left + elementRect.width / 2 - tooltipRect.width / 2
-  // }px`
-  // const bounds = isOutOfBounds(tooltip, spacing)
-  // if (bounds.bottom) {
-  //   resetTooltipPosition(tooltip)
-  //   return false
-  // }
-  // if (bounds.right) {
-  //   tooltip.style.right = `${spacing}px`
-  //   tooltip.style.left = "initial"
-  // }
-  // if (bounds.left) {
-  //   tooltip.style.left = `${spacing}px`
-  // }
-  // return true
+  const tooltipRect = tooltip.getBoundingClientRect()
+
+  tooltip.style.top = `${
+    elementRect.top + elementRect.height / 2 - tooltipRect.height / 2
+  }px`
+  tooltip.style.left = `${elementRect.right + spacing}px`
+
+  const bounds = isOutOfBounds(tooltip, spacing)
+
+  if (bounds.right) {
+    resetTooltipPosition(tooltip)
+    return false
+  }
+
+  if (bounds.bottom) {
+    tooltip.style.bottom = `${spacing}px`
+    tooltip.style.top = 'initial'
+  }
+
+  if (bounds.top) {
+    tooltip.style.top = `${spacing}px`
+  }
+
+  return true
 }
 
 function isOutOfBounds(element, spacing) {
@@ -157,8 +172,8 @@ function isOutOfBounds(element, spacing) {
 }
 
 function resetTooltipPosition(element) {
-  element.style.left = "initial"
-  element.style.right = "initial"
-  element.style.top = "initial"
-  element.style.bottom = "initial"
+  element.style.left = 'initial'
+  element.style.right = 'initial'
+  element.style.top = 'initial'
+  element.style.bottom = 'initial'
 }
